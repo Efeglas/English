@@ -6,7 +6,7 @@
 	import Fa from 'svelte-fa/src/fa.svelte';
 	import { faBars, faCog, faTimes } from '@fortawesome/free-solid-svg-icons';
 
-	import { AppShell, AppBar, Drawer, drawerStore } from '@skeletonlabs/skeleton';
+	import { AppShell, AppBar, Drawer, drawerStore, Toast } from '@skeletonlabs/skeleton';
 	import type { DrawerSettings } from '@skeletonlabs/skeleton';
 	import Menu from '$lib/UI/menu/Menu.svelte';
 	import Settings from '$lib/UI/menu/Settings.svelte';
@@ -48,4 +48,5 @@
 		{/if}
 	</Drawer>
 	<slot />
+	<Toast />
 </AppShell>
