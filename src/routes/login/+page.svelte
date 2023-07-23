@@ -1,7 +1,10 @@
 <script lang='ts'>
-
+    
     import { Validator } from '$lib/helpers/Validator';
 	import { toastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+    import {username as storeUsername} from '$lib/stores/user';
+	import { goto } from '$app/navigation';
+    import { invalidate } from '$app/navigation';
     
     let username = "";
     let password = "";
@@ -32,33 +35,43 @@
         passwordTouchedHandler();
 
         if (usernameValid && passwordValid) {
-            //todo
-            console.log(`SUBMIT: U: ${username} P: ${password}`);
-
-            let response = await fetch('https://localhost:7230/api/User/Login', {
-                method: "POST",
-                mode: "cors",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",      
-                },
-                body: JSON.stringify({username: username, password: password})
-            });
-
+            
+            let response;
             let t: ToastSettings;
-            if (response.status === 200) {              
+            try {
+                
+                response = await fetch('http://192.168.50.188:7230/api/User/Login', {
+                    method: "POST",
+                    mode: "cors",
+                    credentials: "include",
+                    headers: {
+                        "Content-Type": "application/json",      
+                    },
+                    body: JSON.stringify({username: username, password: password})
+                });
+
+                if (response.status === 200) {              
+                    t = {
+                        message: 'Successful login',
+                        background: 'variant-filled-success',
+                    };
+                    storeUsername.set(username);
+                    goto("/");
+                } else {
+                    t = {
+                        message: 'Invalid username or password',
+                        background: 'variant-filled-error',
+                    };
+                }
+                toastStore.trigger(t);
+            } catch (error) {
                 t = {
-                    message: 'Successful login',
-                    background: 'variant-filled-success',
-                };
-            } else {
-                t = {
-                    message: response.statusText,
+                    message: error,
                     background: 'variant-filled-error',
                 };
+                toastStore.trigger(t);
             }
-            toastStore.trigger(t);
-
+           
         } else {
             const t: ToastSettings = {
                 message: 'All fields must be filled',
@@ -90,6 +103,6 @@
         <div class="flex justify-center mt-6">
             <button on:click={submitLogin} type="button" class="btn variant-filled">Log In</button>
         </div>
-        <p class="text-center mt-2">I dont't have an account! <a href="/register" class="no-underline hover:underline font-bold">Register</a></p>
+        <p class="text-center mt-2">I don't have an account! <a href="/register" class="no-underline hover:underline font-bold">Register</a></p>
     </div>
 </div>
