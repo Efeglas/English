@@ -10,8 +10,26 @@
 	import type { DrawerSettings } from '@skeletonlabs/skeleton';
 	import Menu from '$lib/UI/menu/Menu.svelte';
 	import Settings from '$lib/UI/menu/Settings.svelte';
+	import { goto } from '$app/navigation';
+	import {username as storeUsername} from '$lib/stores/user';
+	
+	import { browser } from '$app/environment';
+	
 
 	let drawerSettings: DrawerSettings;
+	export let data;
+	let subscribedStoreUsername: string | null;
+	storeUsername.subscribe((value) => {
+		subscribedStoreUsername = value;
+	});
+
+	if (data.username !== undefined) {
+		storeUsername.set(data.username);		
+	} else {
+		if (browser) {
+			  goto("/login");
+		}
+	}
 
 	const menuClickHandler = () => {
 		openDrawerWithId("menu");
@@ -35,9 +53,9 @@
 <AppShell>
 	<svelte:fragment slot="header">
 		<AppBar gridColumns="grid-cols-3" slotDefault="place-self-center" slotTrail="place-content-end">
-			<svelte:fragment slot="lead"><button on:click={menuClickHandler} class="btn bg-initial hover:bg-surface-900"><Fa icon={faBars} /></button></svelte:fragment>
+			<svelte:fragment slot="lead">{#if subscribedStoreUsername !== null}<button on:click={menuClickHandler} class="btn bg-initial hover:bg-surface-900"><Fa icon={faBars} /></button>{/if}</svelte:fragment>
 			English
-			<svelte:fragment slot="trail"><button on:click={settingsClickHandler} class="btn bg-initial hover:bg-surface-900"><Fa icon={faCog} /></button></svelte:fragment>
+			<svelte:fragment slot="trail">{#if subscribedStoreUsername !== null}<button on:click={settingsClickHandler} class="btn bg-initial hover:bg-surface-900"><Fa icon={faCog} /></button>{/if}</svelte:fragment>
 		</AppBar>
 	</svelte:fragment>
 	<Drawer>		
