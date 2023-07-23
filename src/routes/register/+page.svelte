@@ -1,6 +1,8 @@
 <script lang='ts'>
+	import { goto } from "$app/navigation";
 	import { Validator } from "$lib/helpers/Validator";
     import { ProgressBar } from '@skeletonlabs/skeleton';
+    import { toastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 
     let username = "";
     let password = "";
@@ -39,15 +41,56 @@
         repasswordTouched = true;
     }
 
-    const submitRegister = () => {
-        //todo
-        if (usernameValid && passwordValid && repasswordValid) {
-            
+    let errorString = ``;
+    const submitRegister = async () => {
+
+        errorString = "";
+        usernameTouchedHandler();
+        passwordTouchedHandler();
+        repasswordTouchedHandler();
+        
+        if (!usernameValid && !passwordValid && !repasswordValid) {
+            errorString = `Field(s) must not be empty!`;
+        }
+        
+        if (passwordValid !== repasswordValid) {
+            errorString = `Passwords must match!`;
         }
 
-        if (passwordValid == repasswordValid) {
+        let t: ToastSettings;
+        if (errorString === "") {
+            let response = await fetch('http://192.168.50.188:7230/api/User/Register', {
+                method: "POST",
+                mode: "cors",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",      
+                },
+                body: JSON.stringify({username: username, password: password, repassword: repassword})
+            });
+            let json = await response.json();
+            console.log(json);
+            if (response.status === 200) {
+                t = {
+                    message: json.message[0],
+                    background: 'variant-filled-success',
+                };
+                goto("/login");
+            } else {
+                t = {
+                    message: json.message[0],
+                    background: 'variant-filled-error',
+                };
+            }
             
+        } else {          
+            t = {
+                message: errorString,
+                background: 'variant-filled-error',
+            };
         }
+        toastStore.trigger(t);
+        
     }
     
     const enterPresshandler = (event) => {
@@ -84,7 +127,7 @@
         <label class="label">
             <span>Re-Enter Password</span>
             <input  bind:value={repassword} on:input={repasswordTouchedHandler} on:blur={repasswordTouchedHandler} on:keydown={enterPresshandler} class={repasswordInputClass} type="password" placeholder="Password..." />
-        </label>
+        </label>      
         <div class="flex justify-center mt-6">
             <button on:click={submitRegister} type="button" class="btn variant-filled">Register</button>
         </div>
