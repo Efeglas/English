@@ -12,10 +12,9 @@
 	import Settings from '$lib/UI/menu/Settings.svelte';
 	import { goto } from '$app/navigation';
 	import {username as storeUsername} from '$lib/stores/user';
-	
 	import { browser } from '$app/environment';
+	import { page } from '$app/stores';
 	
-
 	let drawerSettings: DrawerSettings;
 	export let data;
 	let subscribedStoreUsername: string | null;
@@ -28,6 +27,13 @@
 	} else {
 		if (browser) {
 			  goto("/login");
+		}
+	}
+
+	const redirectFrom = ["/login", "/register"];
+	if (redirectFrom.includes($page.url.pathname) && subscribedStoreUsername !== null) {
+		if (browser) {
+			  goto("/");
 		}
 	}
 
