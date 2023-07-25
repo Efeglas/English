@@ -1,12 +1,15 @@
 <script lang='ts'>
 	import { goto } from "$app/navigation";
 	import { Validator } from "$lib/helpers/Validator";
+	import { faSpinner } from "@fortawesome/free-solid-svg-icons";
     import { ProgressBar } from '@skeletonlabs/skeleton';
     import { toastStore, type ToastSettings } from '@skeletonlabs/skeleton';
+	import Fa from "svelte-fa/src/fa.svelte";
 
     let username = "";
     let password = "";
     let repassword = "";
+    let loading = false;
 
     let usernameTouched = false;
     let passwordTouched = false;
@@ -44,6 +47,7 @@
     let errorString = ``;
     const submitRegister = async () => {
 
+        loading = true;
         errorString = "";
         usernameTouchedHandler();
         passwordTouchedHandler();
@@ -82,6 +86,7 @@
                     background: 'variant-filled-error',
                 };
             }
+
             
         } else {          
             t = {
@@ -90,6 +95,7 @@
             };
         }
         toastStore.trigger(t);
+        loading = false;
         
     }
     
@@ -103,16 +109,16 @@
 
 </script>
 
-<div class="w-full flex justify-center mt-20">
-    <div class="card p-4 w-10/12">
+<div class="p-6 mt-20">
+    <div class="card p-4">
         <h1 class="text-center">Register</h1>
         <label class="label">
             <span>Username</span>
-            <input bind:value={username} on:input={usernameTouchedHandler} on:blur={usernameTouchedHandler} on:keydown={enterPresshandler} class={usernameInputClass} type="text" placeholder="Username..." />
+            <input bind:value={username} on:input={usernameTouchedHandler} on:blur={usernameTouchedHandler} on:keydown={enterPresshandler} class={usernameInputClass} type="text" placeholder="Username..." disabled={loading}/>
         </label>
         <label class="label">
             <span>Password</span>
-            <input bind:value={password} on:input={passwordTouchedHandler} on:blur={passwordTouchedHandler} on:keydown={enterPresshandler} class={passwordInputClass} type="password" placeholder="Password..." />
+            <input bind:value={password} on:input={passwordTouchedHandler} on:blur={passwordTouchedHandler} on:keydown={enterPresshandler} class={passwordInputClass} type="password" placeholder="Password..." disabled={loading}/>
         </label>
         <div class="flex justify-center">
             <div class="w-10/12">
@@ -126,10 +132,10 @@
         </div>
         <label class="label">
             <span>Re-Enter Password</span>
-            <input  bind:value={repassword} on:input={repasswordTouchedHandler} on:blur={repasswordTouchedHandler} on:keydown={enterPresshandler} class={repasswordInputClass} type="password" placeholder="Password..." />
+            <input  bind:value={repassword} on:input={repasswordTouchedHandler} on:blur={repasswordTouchedHandler} on:keydown={enterPresshandler} class={repasswordInputClass} type="password" placeholder="Password..." disabled={loading}/>
         </label>      
         <div class="flex justify-center mt-6">
-            <button on:click={submitRegister} type="button" class="btn variant-filled">Register</button>
+            <button on:click={submitRegister} type="button" class="btn variant-filled">{#if loading}<Fa class='mr-1 animate-spin' icon={faSpinner} />{:else}Register{/if}</button>
         </div>
         <p class="text-center mt-2">I have an account! <a href="/login" class="no-underline hover:underline font-bold">Log In</a></p>
     </div>
